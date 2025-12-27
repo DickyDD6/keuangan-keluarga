@@ -183,17 +183,18 @@ const App = {
 
     // Show sync setup modal
     showSyncSetup() {
-        UI.showModal('⚙️ Konfigurasi Google Sheets', `
+        UI.showModal('🔐 Konfigurasi Google Sheets', `
             <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: var(--spacing-lg);">
-                Untuk menyinkronkan data ke Google Sheets, Anda perlu:
+                Untuk menyinkronkan data ke Google Sheets dengan aman:
             </p>
             
             <ol style="color: var(--text-secondary); font-size: 0.85rem; padding-left: var(--spacing-lg); margin-bottom: var(--spacing-lg); line-height: 1.8;">
                 <li>Buat Google Sheets baru</li>
                 <li>Buka menu Extensions → Apps Script</li>
                 <li>Copy-paste kode dari file <code>google-apps-script/Code.gs</code></li>
-                <li>Deploy sebagai Web App (Execute as: Me, Who has access: Anyone)</li>
-                <li>Copy URL web app dan paste di bawah</li>
+                <li><strong>PENTING:</strong> Ganti SECRET_KEY di Code.gs dengan key rahasia Anda</li>
+                <li>Deploy sebagai Web App</li>
+                <li>Isi URL dan Secret Key yang sama di bawah</li>
             </ol>
 
             <div class="form-group">
@@ -201,6 +202,16 @@ const App = {
                 <input type="url" class="form-input" id="apiUrlInput" 
                     placeholder="https://script.google.com/macros/s/..." 
                     value="${Sync.apiUrl || ''}">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">🔑 Secret Key (harus sama dengan di Code.gs)</label>
+                <input type="password" class="form-input" id="secretKeyInput" 
+                    placeholder="Masukkan secret key..." 
+                    value="${Sync.secretKey || ''}">
+                <small style="color: var(--text-muted); font-size: 0.75rem;">
+                    Key ini harus sama persis dengan yang ada di Google Apps Script
+                </small>
             </div>
 
             <button class="btn btn-primary" onclick="App.saveSyncConfig()">
@@ -212,6 +223,7 @@ const App = {
     // Save sync configuration
     async saveSyncConfig() {
         const url = document.getElementById('apiUrlInput').value.trim();
+        const key = document.getElementById('secretKeyInput').value.trim();
 
         if (!url) {
             UI.showToast('Masukkan URL terlebih dahulu', 'error');
@@ -223,9 +235,14 @@ const App = {
             return;
         }
 
-        await Sync.setApiUrl(url);
+        if (!key) {
+            UI.showToast('Masukkan Secret Key', 'error');
+            return;
+        }
+
+        await Sync.setConfig(url, key);
         UI.hideModal();
-        UI.showToast('Konfigurasi berhasil disimpan! ✅', 'success');
+        UI.showToast('Konfigurasi berhasil disimpan! 🔐', 'success');
         Sync.updateStatus();
 
         // Try to sync

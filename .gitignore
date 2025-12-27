@@ -11,3 +11,7 @@ Thumbs.db
 
 # Logs
 *.log
+
+# Google Apps Script (berisi SECRET_KEY - jangan upload!)
+google-apps-script/
+
