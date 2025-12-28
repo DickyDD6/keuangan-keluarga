@@ -12,15 +12,15 @@ const Sync = {
     isSyncing: false,
 
     // Initialize sync module
-    init() {
+    async init() {
         // Listen for online/offline events
         window.addEventListener('online', () => this.handleOnline());
         window.addEventListener('offline', () => this.handleOffline());
 
-        // Load saved config
-        this.loadConfig();
+        // Load saved config (MUST await before updateStatus)
+        await this.loadConfig();
 
-        // Update UI status
+        // Update UI status (only after config loaded)
         this.updateStatus();
     },
 
