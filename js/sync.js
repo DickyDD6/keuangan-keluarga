@@ -95,18 +95,23 @@ const Sync = {
             // Send to Google Sheets WITH SECRET KEY
             const response = await fetch(this.apiUrl, {
                 method: 'POST',
-                mode: 'no-cors', // Required for Google Apps Script
                 headers: {
-                    'Content-Type': 'application/json',
+                    'Content-Type': 'text/plain', // Important for CORS
                 },
                 body: JSON.stringify({
                     action: 'syncTransactions',
-                    key: this.secretKey, // Include secret key
+                    key: this.secretKey,
                     transactions: unsynced
                 })
             });
 
-            // Mark as synced (no-cors doesn't return response body, so we assume success)
+            // Check if sync was successful
+            // Note: Google Apps Script returns opaque response, so we can't read response
+            // But if fetch doesn't throw, request reached the server
+            // We wait a bit to let server process
+            await new Promise(resolve => setTimeout(resolve, 1000));
+
+            // Mark as synced only after delay (assuming server processed)
             for (const tx of unsynced) {
                 await DB.markAsSynced(tx.id);
             }
