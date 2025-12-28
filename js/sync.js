@@ -47,7 +47,8 @@ const Sync = {
     handleOnline() {
         this.isOnline = true;
         this.updateStatus();
-        this.syncAll(); // Auto sync when back online
+        // Don't auto-sync on every online event (e.g., page refresh)
+        // Only sync when explicitly called (after adding transaction)
     },
 
     handleOffline() {
@@ -109,7 +110,7 @@ const Sync = {
             // Note: Google Apps Script returns opaque response, so we can't read response
             // But if fetch doesn't throw, request reached the server
             // We wait a bit to let server process
-            await new Promise(resolve => setTimeout(resolve, 1000));
+            await new Promise(resolve => setTimeout(resolve, 100));
 
             // Mark as synced only after delay (assuming server processed)
             for (const tx of unsynced) {
