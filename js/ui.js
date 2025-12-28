@@ -68,9 +68,14 @@ const UI = {
                 end.setHours(23, 59, 59, 999);
                 break;
             case 'minggu':
+                // Get current day of week (0 = Sunday, 1 = Monday, ..., 6 = Saturday)
                 const dayOfWeek = now.getDay();
-                start.setDate(now.getDate() - dayOfWeek);
+                // Calculate days since Monday (treat Sunday as day 7)
+                const daysSinceMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+                // Set start to Monday of current week
+                start.setDate(now.getDate() - daysSinceMonday);
                 start.setHours(0, 0, 0, 0);
+                // Set end to Sunday  of current week
                 end.setDate(start.getDate() + 6);
                 end.setHours(23, 59, 59, 999);
                 break;
