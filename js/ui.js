@@ -530,6 +530,12 @@ const UI = {
                 <button class="btn btn-secondary" onclick="App.showSyncSetup()">
                     ${Sync.isConfigured() ? 'Ubah Konfigurasi' : 'Konfigurasi Sekarang'}
                 </button>
+                
+                ${Sync.isConfigured() ? `
+                    <button class="btn btn-primary" style="margin-top: var(--spacing-md);" onclick="App.manualSync()">
+                        🔄 Sync Sekarang
+                    </button>
+                ` : ''}
             </div>
         `;
     }

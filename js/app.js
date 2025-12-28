@@ -250,6 +250,23 @@ const App = {
 
         // Refresh current page
         UI.renderPage(UI.currentPage);
+    },
+
+    // Manual sync trigger
+    async manualSync() {
+        if (!Sync.isConfigured()) {
+            UI.showToast('Konfigurasi sync belum diatur', 'error');
+            return;
+        }
+
+        UI.showToast('Memulai sinkronisasi...', 'info');
+
+        try {
+            await Sync.syncAll();
+            UI.showToast('Sinkronisasi selesai! Cek Google Sheets Anda 🎉', 'success');
+        } catch (error) {
+            UI.showToast('Gagal sync: ' + error.message, 'error');
+        }
     }
 };
 
