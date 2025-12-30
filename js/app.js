@@ -129,7 +129,7 @@ const App = {
                             required 
                             autofocus>
                     </div>
-                    <div class="form-group">
+                    <div class="form-group" style="position: relative;">
                         <label class="form-label">Password</label>
                         <input 
                             type="password" 
@@ -137,7 +137,15 @@ const App = {
                             class="form-input" 
                             placeholder="Masukkan password"
                             autocomplete="current-password"
+                            style="padding-right: 50px;"
                             required>
+                        <button 
+                            type="button" 
+                            class="password-toggle" 
+                            onclick="App.togglePassword('loginPassword', this)"
+                            style="position: absolute; right: 12px; top: 36px; background: none; border: none; cursor: pointer; font-size: 1.2rem;">
+                            👁️
+                        </button>
                     </div>
                     <button type="submit" class="btn btn-primary">
                         \ud83d\udd11 Login
@@ -173,26 +181,42 @@ const App = {
                             class="form-input" 
                             readonly>
                     </div>
-                    <div class="form-group">
+                    <div class="form-group" style="position: relative;">
                         <label class="form-label">Password (min 4 karakter)</label>
                         <input 
                             type="password" 
                             id="setupPassword" 
                             class="form-input" 
                             placeholder="Password untuk dicky"
+                            style="padding-right: 50px;"
                             required 
                             autofocus
                             minlength="4">
+                        <button 
+                            type="button" 
+                            class="password-toggle" 
+                            onclick="App.togglePassword('setupPassword', this)"
+                            style="position: absolute; right: 12px; top: 36px; background: none; border: none; cursor: pointer; font-size: 1.2rem;">
+                            👁️
+                        </button>
                     </div>
-                    <div class="form-group">
+                    <div class="form-group" style="position: relative;">
                         <label class="form-label">Confirm Password</label>
                         <input 
                             type="password" 
                             id="setupConfirm" 
                             class="form-input" 
                             placeholder="Ketik ulang password"
+                            style="padding-right: 50px;"
                             required
                             minlength="4">
+                        <button 
+                            type="button" 
+                            class="password-toggle" 
+                            onclick="App.togglePassword('setupConfirm', this)"
+                            style="position: absolute; right: 12px; top: 36px; background: none; border: none; cursor: pointer; font-size: 1.2rem;">
+                            👁️
+                        </button>
                     </div>
                     <button type="submit" class="btn btn-primary">
                         \u2705 Setup Admin
@@ -252,6 +276,18 @@ const App = {
                 userName.innerHTML += ' <span class="admin-badge">Admin</span>';
             }
             userInfo.style.display = 'flex';
+        }
+    },
+
+    // Toggle password visibility
+    togglePassword(inputId, button) {
+        const input = document.getElementById(inputId);
+        if (input.type === 'password') {
+            input.type = 'text';
+            button.textContent = '🙈'; // closed eye
+        } else {
+            input.type = 'password';
+            button.textContent = '👁️'; // open eye
         }
     },
 
