@@ -10,7 +10,7 @@
 // ============================================
 // 🔐 SECRET KEY - GANTI DENGAN KEY ANDA SENDIRI!
 // ============================================
-const SECRET_KEY = "keluarga2024"; // Ganti ini dengan key rahasia Anda!
+const SECRET_KEY = "ddd06"; // Secret key untuk keamanan
 // ============================================
 
 // Spreadsheet configuration
