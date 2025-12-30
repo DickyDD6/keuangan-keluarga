@@ -311,24 +311,39 @@ const DB = {
 
     // Get user by ID
     async getUser(id) {
-        const tx = this.db.transaction(['users'], 'readonly');
-        const store = tx.objectStore('users');
-        return await store.get(id);
+        return new Promise((resolve, reject) => {
+            const tx = this.db.transaction(['users'], 'readonly');
+            const store = tx.objectStore('users');
+            const request = store.get(id);
+
+            request.onsuccess = () => resolve(request.result);
+            request.onerror = () => reject(request.error);
+        });
     },
 
     // Get user by username
     async getUserByUsername(username) {
-        const tx = this.db.transaction(['users'], 'readonly');
-        const store = tx.objectStore('users');
-        const index = store.index('username');
-        return await index.get(username);
+        return new Promise((resolve, reject) => {
+            const tx = this.db.transaction(['users'], 'readonly');
+            const store = tx.objectStore('users');
+            const index = store.index('username');
+            const request = index.get(username);
+
+            request.onsuccess = () => resolve(request.result);
+            request.onerror = () => reject(request.error);
+        });
     },
 
     // Get all users
     async getAllUsers() {
-        const tx = this.db.transaction(['users'], 'readonly');
-        const store = tx.objectStore('users');
-        return await store.getAll();
+        return new Promise((resolve, reject) => {
+            const tx = this.db.transaction(['users'], 'readonly');
+            const store = tx.objectStore('users');
+            const request = store.getAll();
+
+            request.onsuccess = () => resolve(request.result);
+            request.onerror = () => reject(request.error);
+        });
     },
 
     // Update user
