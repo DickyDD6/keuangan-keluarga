@@ -256,12 +256,19 @@ const App = {
         }
 
         try {
+            // Force delete existing dicky user (if any from previous tests)
+            const existingUser = await DB.getUserByUsername('dicky');
+            if (existingUser) {
+                await DB.deleteUser(existingUser.id);
+            }
+
             await Auth.setupAdmin('dicky', password);
             await Auth.login('dicky', password);
-            UI.showToast('Admin berhasil dibuat! Selamat datang, Dicky! \ud83d\udc4b', 'success');
+            UI.showToast('Admin berhasil dibuat! Selamat datang, Dicky! 👋', 'success');
             this.showMainApp();
         } catch (error) {
             UI.showToast(error.message, 'error');
+            console.error('Setup error:', error);
         }
     },
 
