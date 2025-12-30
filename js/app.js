@@ -7,32 +7,64 @@ const App = {
     // Initialize application
     async init() {
         try {
-            // Initialize IndexedDB
+            // Initialize IndexedDB first
             await DB.init();
 
             // Initialize default categories
             await DB.initDefaultCategories();
 
-            // Initialize sync module
-            Sync.init();
+            // Check if users exist
+            const hasUsers = await Auth.hasUsers();
 
-            // Setup event listeners
-            this.setupEventListeners();
+            if (!hasUsers) {
+                // First-time setup: show admin setup
+                this.showAdminSetup();
+            } else {
+                // Check if user is logged in
+                const isLoggedIn = await Auth.init();
 
-            // Render initial page
-            await UI.renderPage('dashboard');
-
-            // Register service worker
-            this.registerServiceWorker();
-
-            // Check for PWA install prompt
-            this.setupPWAInstall();
+                if (isLoggedIn) {
+                    // User logged in, show main app
+                    this.showMainApp();
+                } else {
+                    // Not logged in, show login page
+                    this.showLogin();
+                }
+            }
 
             console.log('✅ App initialized successfully');
         } catch (error) {
             console.error('❌ App initialization error:', error);
             UI.showToast('Error initializing app: ' + error.message, 'error');
         }
+    },
+
+    // Show main app (after login)
+    async showMainApp() {
+        // Hide login container
+        document.getElementById('loginContainer').style.display = 'none';
+
+        // Show main content and nav
+        document.getElementById('mainContent').style.display = 'block';
+        document.querySelector('.bottom-nav').style.display = 'flex';
+
+        // Initialize sync module
+        await Sync.init();
+
+        // Setup event listeners
+        this.setupEventListeners();
+
+        // Update user info in header
+        this.updateUserInfo();
+
+        // Render initial page
+        await UI.renderPage('dashboard');
+
+        // Register service worker
+        this.registerServiceWorker();
+
+        // Check for PWA install prompt
+        this.setupPWAInstall();
     },
 
     // Setup event listeners
@@ -62,6 +94,165 @@ const App = {
                 this.showTransactionDetail(txItem.dataset.id);
             }
         });
+
+        // Logout button
+        document.getElementById('logoutBtn')?.addEventListener('click', () => {
+            if (confirm('Yakin ingin logout?')) {
+                Auth.logout();
+            }
+        });
+    },
+
+    // ===== LOGIN SYSTEM =====
+
+    // Show login page
+    showLogin() {
+        document.getElementById('loginContainer').style.display = 'flex';
+        document.getElementById('mainContent').style.display = 'none';
+        document.querySelector('.bottom-nav').style.display = 'none';
+
+        document.getElementById('loginContainer').innerHTML = `
+            <div class="login-card">
+                <div class="login-header">
+                    <h2 class="login-title">\ud83d\udcb0 Keuangan Keluarga</h2>
+                    <p class="login-subtitle">Login untuk melanjutkan</p>
+                </div>
+                <form id="loginForm" class="login-form">
+                    <div class="form-group">
+                        <label class="form-label">Username</label>
+                        <input 
+                            type="text" 
+                            id="loginUsername" 
+                            class="form-input" 
+                            placeholder="mama, dicky, atau nanda"
+                            autocomplete="username"
+                            required 
+                            autofocus>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Password</label>
+                        <input 
+                            type="password" 
+                            id="loginPassword" 
+                            class="form-input" 
+                            placeholder="Masukkan password"
+                            autocomplete="current-password"
+                            required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">
+                        \ud83d\udd11 Login
+                    </button>
+                </form>
+            </div>
+        `;
+
+        document.getElementById('loginForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            this.handleLogin();
+        });
+    },
+
+    // Show admin setup (first-time)
+    showAdminSetup() {
+        document.getElementById('loginContainer').style.display = 'flex';
+        document.getElementById('mainContent').style.display = 'none';
+        document.querySelector('.bottom-nav').style.display = 'none';
+
+        document.getElementById('loginContainer').innerHTML = `
+            <div class="login-card">
+                <div class="login-header">
+                    <h2 class="login-title">\ud83d\udd10 Setup Admin</h2>
+                    <p class="login-subtitle">Pertama kali? Setup akun admin (Dicky)</p>
+                </div>
+                <form id="setupForm" class="login-form">
+                    <div class="form-group">
+                        <label class="form-label">Username</label>
+                        <input 
+                            type="text" 
+                            value="dicky" 
+                            class="form-input" 
+                            readonly>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Password (min 4 karakter)</label>
+                        <input 
+                            type="password" 
+                            id="setupPassword" 
+                            class="form-input" 
+                            placeholder="Password untuk dicky"
+                            required 
+                            autofocus
+                            minlength="4">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Confirm Password</label>
+                        <input 
+                            type="password" 
+                            id="setupConfirm" 
+                            class="form-input" 
+                            placeholder="Ketik ulang password"
+                            required
+                            minlength="4">
+                    </div>
+                    <button type="submit" class="btn btn-primary">
+                        \u2705 Setup Admin
+                    </button>
+                </form>
+            </div>
+        `;
+
+        document.getElementById('setupForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            this.handleAdminSetup();
+        });
+    },
+
+    // Handle login
+    async handleLogin() {
+        const username = document.getElementById('loginUsername').value.trim();
+        const password = document.getElementById('loginPassword').value;
+
+        try {
+            await Auth.login(username, password);
+            UI.showToast(`Selamat datang, ${Auth.currentUser.displayName}! \ud83d\udc4b`, 'success');
+            this.showMainApp();
+        } catch (error) {
+            UI.showToast(error.message, 'error');
+        }
+    },
+
+    // Handle admin setup
+    async handleAdminSetup() {
+        const password = document.getElementById('setupPassword').value;
+        const confirm = document.getElementById('setupConfirm').value;
+
+        if (password !== confirm) {
+            UI.showToast('Password tidak cocok!', 'error');
+            return;
+        }
+
+        try {
+            await Auth.setupAdmin('dicky', password);
+            await Auth.login('dicky', password);
+            UI.showToast('Admin berhasil dibuat! Selamat datang, Dicky! \ud83d\udc4b', 'success');
+            this.showMainApp();
+        } catch (error) {
+            UI.showToast(error.message, 'error');
+        }
+    },
+
+    // Update user info in header
+    updateUserInfo() {
+        const userInfo = document.getElementById('userInfo');
+        const userName = document.getElementById('userName');
+
+        if (Auth.currentUser) {
+            userName.textContent = Auth.currentUser.displayName;
+            if (Auth.currentUser.role === 'admin') {
+                userName.innerHTML += ' <span class="admin-badge">Admin</span>';
+            }
+            userInfo.style.display = 'flex';
+        }
     },
 
     // Register service worker

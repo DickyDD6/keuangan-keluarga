@@ -258,11 +258,13 @@ const UI = {
 
                 <div class="form-group">
                     <label class="form-label">Input Oleh</label>
-                    <select class="form-select" id="inputOleh" required>
-                        ${this.familyMembers.map(name => `
-                            <option value="${name}">${name}</option>
-                        `).join('')}
-                    </select>
+                    <input 
+                        type="text" 
+                        class="form-input" 
+                        value="${Auth.currentUser?.displayName || 'User'}" 
+                        readonly 
+                        style="background: var(--bg-card); cursor: not-allowed;">
+                    <input type="hidden" id="inputOleh" value="${Auth.currentUser?.displayName || 'User'}">
                 </div>
 
                 <button type="submit" class="btn btn-primary">

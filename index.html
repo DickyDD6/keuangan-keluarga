@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -11,6 +12,7 @@
     <link rel="apple-touch-icon" href="icons/icon-192.png">
     <link rel="stylesheet" href="css/style.css">
 </head>
+
 <body>
     <!-- App Container -->
     <div id="app">
@@ -18,34 +20,45 @@
         <header class="app-header">
             <div class="header-content">
                 <h1 class="app-title">💰 Keuangan Keluarga</h1>
-                <div class="sync-status" id="syncStatus">
-                    <span class="sync-icon">●</span>
-                    <span class="sync-text">Offline</span>
+                <div class="header-right">
+                    <div class="sync-status" id="syncStatus">
+                        <span class="sync-icon">●</span>
+                        <span class="sync-text">Offline</span>
+                    </div>
+                    <div class="user-info" id="userInfo" style="display: none;">
+                        <span id="userName"></span>
+                        <button class="logout-btn" id="logoutBtn" title="Logout">🚪</button>
+                    </div>
                 </div>
             </div>
         </header>
 
+        <!-- Login Container (shown when not logged in) -->
+        <div id="loginContainer" style="display: none;">
+            <!-- Login UI will be rendered here by app.js -->
+        </div>
+
         <!-- Main Content -->
-        <main class="app-main" id="mainContent">
+        <main class="app-main" id="mainContent" style="display: none;">
             <!-- Pages will be rendered here -->
         </main>
 
         <!-- Bottom Navigation -->
         <nav class="bottom-nav">
             <button class="nav-item active" data-page="dashboard">
-                <span class="nav-icon">📊</span>
+
                 <span class="nav-label">Dashboard</span>
             </button>
             <button class="nav-item" data-page="input">
-                <span class="nav-icon">➕</span>
+
                 <span class="nav-label">Input</span>
             </button>
             <button class="nav-item" data-page="laporan">
-                <span class="nav-icon">📈</span>
+
                 <span class="nav-label">Laporan</span>
             </button>
             <button class="nav-item" data-page="kategori">
-                <span class="nav-icon">📂</span>
+
                 <span class="nav-label">Kategori</span>
             </button>
         </nav>
@@ -67,8 +80,10 @@
 
     <!-- Scripts -->
     <script src="js/db.js"></script>
+    <script src="js/auth.js"></script>
     <script src="js/sync.js"></script>
     <script src="js/ui.js"></script>
     <script src="js/app.js"></script>
 </body>
+
 </html>

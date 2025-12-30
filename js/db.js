@@ -5,7 +5,7 @@
 
 const DB = {
     name: 'KeuanganKeluargaDB',
-    version: 1,
+    version: 2, // Updated for users support
     db: null,
 
     // Initialize database
@@ -40,6 +40,13 @@ const DB = {
                 // Settings store
                 if (!db.objectStoreNames.contains('settings')) {
                     db.createObjectStore('settings', { keyPath: 'key' });
+                }
+
+                // Users store (NEW for login system)
+                if (!db.objectStoreNames.contains('users')) {
+                    const userStore = db.createObjectStore('users', { keyPath: 'id' });
+                    userStore.createIndex('username', 'username', { unique: true });
+                    userStore.createIndex('role', 'role', { unique: false });
                 }
             };
         });
@@ -286,5 +293,61 @@ const DB = {
             byCategory,
             transactionCount: transactions.length
         };
+    },
+
+    // ===== USER MANAGEMENT (for Login System) =====
+
+    // Add new user
+    async addUser(user) {
+        const tx = this.db.transaction(['users'], 'readwrite');
+        const store = tx.objectStore('users');
+
+        user.createdAt = new Date().toISOString();
+        user.lastLogin = null;
+
+        await store.add(user);
+        return user;
+    },
+
+    // Get user by ID
+    async getUser(id) {
+        const tx = this.db.transaction(['users'], 'readonly');
+        const store = tx.objectStore('users');
+        return await store.get(id);
+    },
+
+    // Get user by username
+    async getUserByUsername(username) {
+        const tx = this.db.transaction(['users'], 'readonly');
+        const store = tx.objectStore('users');
+        const index = store.index('username');
+        return await index.get(username);
+    },
+
+    // Get all users
+    async getAllUsers() {
+        const tx = this.db.transaction(['users'], 'readonly');
+        const store = tx.objectStore('users');
+        return await store.getAll();
+    },
+
+    // Update user
+    async updateUser(id, updates) {
+        const tx = this.db.transaction(['users'], 'readwrite');
+        const store = tx.objectStore('users');
+
+        const user = await store.get(id);
+        if (!user) throw new Error('User not found');
+
+        Object.assign(user, updates);
+        await store.put(user);
+        return user;
+    },
+
+    // Delete user
+    async deleteUser(id) {
+        const tx = this.db.transaction(['users'], 'readwrite');
+        const store = tx.objectStore('users');
+        await store.delete(id);
     }
 };
