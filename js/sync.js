@@ -5,9 +5,11 @@
  */
 
 const Sync = {
-    // Google Apps Script Web App URL (to be configured)
+    // Google Apps Script Web App URL (HARDCODED - update this when GAS URL changes)
+    DEFAULT_API_URL: 'https://script.google.com/macros/s/AKfycbz0WVKE6eCrKhB3yG5Z6Jyo3rsBQwAC8HpOhV3z3Aj1Kbhf9NqWonpZ5P1Gg4fD3yXl/exec',
+
     apiUrl: null,
-    secretKey: null, // Secret key for authentication
+    secretKey: null, // Secret key for authentication (user input required)
     isOnline: navigator.onLine,
     isSyncing: false,
 
@@ -25,16 +27,18 @@ const Sync = {
     },
 
     async loadConfig() {
-        const url = await DB.getSetting('apiUrl');
+        // Always use hardcoded URL
+        this.apiUrl = this.DEFAULT_API_URL;
+
+        // Load secret key from DB
         const key = await DB.getSetting('secretKey');
-        if (url) this.apiUrl = url;
         if (key) this.secretKey = key;
     },
 
-    async setConfig(url, key) {
-        this.apiUrl = url;
+    async setConfig(key) {
+        // URL is hardcoded, only save secret key
+        this.apiUrl = this.DEFAULT_API_URL;
         this.secretKey = key;
-        await DB.setSetting('apiUrl', url);
         await DB.setSetting('secretKey', key);
     },
 
