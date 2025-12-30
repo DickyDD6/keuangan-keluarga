@@ -346,8 +346,13 @@ const DB = {
 
     // Delete user
     async deleteUser(id) {
-        const tx = this.db.transaction(['users'], 'readwrite');
-        const store = tx.objectStore('users');
-        await store.delete(id);
+        return new Promise((resolve, reject) => {
+            const tx = this.db.transaction(['users'], 'readwrite');
+            const store = tx.objectStore('users');
+            const request = store.delete(id);
+
+            request.onsuccess = () => resolve();
+            request.onerror = () => reject(request.error);
+        });
     }
 };
