@@ -10,7 +10,7 @@
 // ============================================
 // 🔐 SECRET KEY - GANTI DENGAN KEY ANDA SENDIRI!
 // ============================================
-const SECRET_KEY = "ddd06"; // Secret key untuk keamanan
+const SECRET_KEY = "YOUR_SECRET_KEY_HERE"; // ⚠️ WAJIB GANTI SEBELUM DEPLOY!
 // ============================================
 
 // Spreadsheet configuration
