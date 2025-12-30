@@ -17,19 +17,30 @@ const App = {
             const hasUsers = await Auth.hasUsers();
 
             if (!hasUsers) {
-                // First-time setup: show admin setup
-                this.showAdminSetup();
-            } else {
-                // Check if user is logged in
-                const isLoggedIn = await Auth.init();
-
-                if (isLoggedIn) {
-                    // User logged in, show main app
-                    this.showMainApp();
-                } else {
-                    // Not logged in, show login page
-                    this.showLogin();
+                // First-time: auto-create default admin
+                UI.showToast('Membuat admin default...', 'info');
+                try {
+                    await Auth.setupAdmin('dicky', 'admin123');
+                    UI.showToast('Admin dibuat! Login dengan username: dicky, password: admin123', 'success');
+                    setTimeout(() => {
+                        this.showLogin();
+                    }, 2000);
+                } catch (error) {
+                    console.error('Failed to create default admin:', error);
+                    UI.showToast('Error creating admin: ' + error.message, 'error');
                 }
+                return;
+            }
+
+            // Check if user is logged in
+            const isLoggedIn = await Auth.init();
+
+            if (isLoggedIn) {
+                // User logged in, show main app
+                this.showMainApp();
+            } else {
+                // Not logged in, show login page
+                this.showLogin();
             }
 
             console.log('✅ App initialized successfully');
