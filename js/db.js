@@ -299,14 +299,18 @@ const DB = {
 
     // Add new user
     async addUser(user) {
-        const tx = this.db.transaction(['users'], 'readwrite');
-        const store = tx.objectStore('users');
+        return new Promise((resolve, reject) => {
+            const tx = this.db.transaction(['users'], 'readwrite');
+            const store = tx.objectStore('users');
 
-        user.createdAt = new Date().toISOString();
-        user.lastLogin = null;
+            user.createdAt = new Date().toISOString();
+            user.lastLogin = null;
 
-        await store.add(user);
-        return user;
+            const request = store.add(user);
+
+            request.onsuccess = () => resolve(user);
+            request.onerror = () => reject(request.error);
+        });
     },
 
     // Get user by ID
@@ -348,15 +352,28 @@ const DB = {
 
     // Update user
     async updateUser(id, updates) {
-        const tx = this.db.transaction(['users'], 'readwrite');
-        const store = tx.objectStore('users');
+        return new Promise((resolve, reject) => {
+            const tx = this.db.transaction(['users'], 'readwrite');
+            const store = tx.objectStore('users');
 
-        const user = await store.get(id);
-        if (!user) throw new Error('User not found');
+            const getRequest = store.get(id);
 
-        Object.assign(user, updates);
-        await store.put(user);
-        return user;
+            getRequest.onsuccess = () => {
+                const user = getRequest.result;
+                if (!user) {
+                    reject(new Error('User not found'));
+                    return;
+                }
+
+                Object.assign(user, updates);
+                const putRequest = store.put(user);
+
+                putRequest.onsuccess = () => resolve(user);
+                putRequest.onerror = () => reject(putRequest.error);
+            };
+
+            getRequest.onerror = () => reject(getRequest.error);
+        });
     },
 
     // Delete user
